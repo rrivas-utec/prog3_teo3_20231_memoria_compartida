@@ -3,6 +3,11 @@
 #include <vector>
 #include <chrono>
 #include <mutex>
+#include <random>
+#include <map>
+#include <algorithm>
+#include <numeric>
+#include "count_frequence.h"
 using namespace std;
 
 mutex mtx;
@@ -55,8 +60,44 @@ void ejemplo_variable_compartida() {
     }
 }
 
+auto generar_vector(int n, int first, int last) {
+    vector<int> vec(n);
+    random_device rd;
+    uniform_int_distribution<int> uid(first, last);
+    for (auto& item: vec)
+        item = uid(rd);
+    return vec;
+}
+
+template<typename T>
+ostream& operator<<(ostream& out, const vector<T>& vec) {
+    for (const auto& item: vec)
+        out << item << " ";
+    return out;
+}
+
+template<typename KeyType, typename ValueType>
+ostream& operator<<(ostream& out, const map<KeyType, ValueType>& mp) {
+    for (const auto& [key, value] : mp)
+        out << "{" << key << ": " << value << "}\n";
+    return out;
+}
+
+void ejemplo_frecuencias() {
+    auto vec = generar_vector(100, 1, 20);
+    auto res = count_frequence(begin(vec), end(vec));
+    cout << res << endl;
+    auto freq = accumulate(begin(res), end(res), 0,
+                           [](auto sum, auto item) {
+        sum += item.second;
+        return sum;
+    });
+    cout << size(vec) << "==" << freq << endl;
+}
+
 
 int main() {
-    ejemplo_variable_compartida();
+//    ejemplo_variable_compartida();
+    ejemplo_frecuencias();
     return 0;
 }
